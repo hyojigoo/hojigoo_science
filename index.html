@@ -21,7 +21,7 @@
       body { background: white !important; color: black !important; }
       .print-shadow-none { box-shadow: none !important; border: 1px solid #cbd5e1 !important; }
     }
-    /* 실시간 데이터 수신 시 빛나는 애니메이션 */
+    /* 실시간 데이터 수신 시 반짝임 애니메이션 */
     @keyframes liveGlow {
       0% { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.8); }
       50% { transform: scale(1.03); box-shadow: 0 0 18px 5px rgba(16, 185, 129, 0.5); }
@@ -39,7 +39,7 @@
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
       
       <!-- 학급 선택 & 타이틀 -->
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2.5 flex-wrap">
         <div class="bg-emerald-600 text-white font-black px-3 py-1.5 rounded-xl shadow-sm text-sm sm:text-base flex items-center gap-1.5">
           <span>🌍</span>
           <span>지구계 탐험</span>
@@ -47,7 +47,7 @@
 
         <div class="relative">
           <select id="classSelect" class="bg-slate-50 border-2 border-emerald-500 font-bold text-slate-800 rounded-lg px-3 py-1.5 text-sm sm:text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 cursor-pointer">
-            <!-- JS 동적 생성 (2학년 1반 ~ 8반) -->
+            <!-- JS 동적 생성 -->
           </select>
         </div>
 
@@ -56,8 +56,20 @@
           <span>반 관리</span>
         </button>
 
-        <!-- 실시간 동기화 상태 뱃지 (무가입 라이브 연결) -->
-        <div id="syncStatusBadge" class="flex items-center gap-1.5 bg-emerald-50 border border-emerald-300 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold">
+        <!-- 현재 반 데이터 저장/다운로드 버튼 -->
+        <button id="btnExportData" class="bg-teal-100 hover:bg-teal-200 text-teal-800 font-bold px-2.5 py-1.5 rounded-lg text-xs sm:text-sm transition flex items-center gap-1 border border-teal-300" title="현재 반 데이터 CSV/엑셀 저장">
+          <span>💾</span>
+          <span>저장</span>
+        </button>
+
+        <!-- 현재 반 초기화 버튼 -->
+        <button id="btnOpenResetModal" class="bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold px-2.5 py-1.5 rounded-lg text-xs sm:text-sm transition flex items-center gap-1 border border-rose-300" title="현재 반 데이터 초기화">
+          <span>🗑️</span>
+          <span>초기화</span>
+        </button>
+
+        <!-- 실시간 동기화 상태 뱃지 -->
+        <div id="syncStatusBadge" class="hidden md:flex items-center gap-1.5 bg-emerald-50 border border-emerald-300 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold">
           <span id="syncDot" class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
           <span id="syncStatusText">🟢 실시간 라이브 연동 중</span>
         </div>
@@ -143,7 +155,7 @@
       </div>
     </section>
 
-    <!-- 2. 5x5 지구계 상호작용 매트릭스 표 (가로-세로 스타일 완전 동일) -->
+    <!-- 2. 5x5 지구계 상호작용 매트릭스 표 -->
     <section class="bg-white rounded-2xl p-4 sm:p-6 border-2 border-slate-300 shadow-lg overflow-x-auto">
       <div class="min-w-[780px]">
         <table class="w-full border-collapse">
@@ -257,7 +269,34 @@
     </div>
   </div>
 
-  <!-- 모달 3: 요약 보고서 -->
+  <!-- 모달 3: 현재 반 데이터 초기화 선택 팝업 -->
+  <div id="resetModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full border-4 border-rose-500 shadow-2xl overflow-hidden">
+      <div class="bg-rose-600 text-white p-5 flex justify-between items-center">
+        <h2 class="text-xl font-black flex items-center gap-2">
+          <span>🗑️</span> 학급 데이터 초기화
+        </h2>
+        <button id="btnCloseResetModal" class="text-white hover:text-red-200 text-2xl font-black p-1">&times;</button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <p id="resetModalMessage" class="text-slate-700 font-bold text-sm leading-relaxed">
+          현재 반의 모든 작성 데이터를 초기화하시겠습니까? 삭제된 데이터는 복구할 수 없으며, 연결된 학생들의 화면도 즉시 깨끗해집니다.
+        </p>
+      </div>
+
+      <div class="bg-slate-50 border-t border-slate-200 p-4 flex justify-end gap-2">
+        <button id="btnCancelResetModal" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-5 py-2 rounded-xl text-sm">
+          취소
+        </button>
+        <button id="btnResetCurrentClass" class="bg-rose-600 hover:bg-rose-700 text-white font-black px-5 py-2 rounded-xl text-sm shadow-md transition">
+          🧹 초기화 실행
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 모달 4: 요약 보고서 -->
   <div id="reportModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-6 hidden">
     <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] flex flex-col border-4 border-blue-500 shadow-2xl overflow-hidden">
       <div class="bg-blue-600 text-white p-4 sm:p-5 flex justify-between items-center shrink-0">
@@ -284,11 +323,11 @@
     // 1. 교육과정 기초 데이터
     const SPHERES = ["지권", "수권", "기권", "생물권", "외권"];
     const SPHERES_HEADER_STYLE = {
-      "지권": "bg-amber-500 text-white border-amber-600",
-      "수권": "bg-blue-500 text-white border-blue-600",
-      "기권": "bg-sky-500 text-white border-sky-600",
-      "생물권": "bg-emerald-600 text-white border-emerald-700",
-      "외권": "bg-purple-600 text-white border-purple-700",
+      "지권": "bg-amber-500 text-white border-amber-600 shadow-sm",
+      "수권": "bg-blue-500 text-white border-blue-600 shadow-sm",
+      "기권": "bg-sky-500 text-white border-sky-600 shadow-sm",
+      "생물권": "bg-emerald-600 text-white border-emerald-700 shadow-sm",
+      "외권": "bg-purple-600 text-white border-purple-700 shadow-sm",
     };
 
     const HINTS = {
@@ -318,7 +357,7 @@
       "4_3": "태양에서 오는 빛에너지는 지구 생물이 살아가고 식물이 광합성을 하는 가장 근본적인 에너지원입니다."
     };
 
-    // 2. 상태 정의 (2학년 1반 ~ 8반)
+    // 2. 상태 정의 (학급별 완전 독립 스토리지)
     let classes = [
       { id: "c1", name: "2학년 1반" },
       { id: "c2", name: "2학년 2반" },
@@ -330,7 +369,35 @@
       { id: "c8", name: "2학년 8반" },
     ];
     let currentClassId = "c1";
-    let matrixData = {}; // key: "r_c" -> { text, author, time, updatedAt }
+
+    // masterStorage: { [classId]: { [cellKey]: { text, author, time, updatedAt } } }
+    let masterStorage = {};
+
+    function loadLocalMasterStorage() {
+      try {
+        const saved = localStorage.getItem("earth_science_master_data_v5");
+        if (saved) {
+          masterStorage = JSON.parse(saved);
+        }
+      } catch (e) {
+        console.warn("LocalStorage load error:", e);
+      }
+    }
+
+    function saveLocalMasterStorage() {
+      try {
+        localStorage.setItem("earth_science_master_data_v5", JSON.stringify(masterStorage));
+      } catch (e) {
+        console.warn("LocalStorage save error:", e);
+      }
+    }
+
+    function getCurrentMatrix() {
+      if (!masterStorage[currentClassId]) {
+        masterStorage[currentClassId] = {};
+      }
+      return masterStorage[currentClassId];
+    }
 
     let globalSeconds = 0;
     let timerRunning = true;
@@ -341,12 +408,12 @@
 
     // 3. 무가입 실시간 통신 엔진 (MQTT over WebSockets)
     let mqttClient = null;
-    const MQTT_BROKER = "wss://broker.emqx.io:8084/mqtt"; // 공용 실시간 중계 서버
+    const MQTT_BROKER = "wss://broker.emqx.io:8084/mqtt";
     let currentTopic = "";
 
     function initRealtimeEngine() {
       try {
-        const clientId = "earth_sci_" + Math.random().toString(16).substr(2, 8);
+        const clientId = "earth_sci_v5_" + Math.random().toString(16).substr(2, 8);
         mqttClient = mqtt.connect(MQTT_BROKER, { clientId, keepalive: 60 });
 
         mqttClient.on("connect", () => {
@@ -358,29 +425,40 @@
         mqttClient.on("message", (topic, message) => {
           try {
             const payload = JSON.parse(message.toString());
+            
+            // 다른 반 데이터는 수신 방지
+            if (payload.classId && payload.classId !== currentClassId) return;
+
+            const currentMatrix = getCurrentMatrix();
+
             if (payload.type === "CELL_UPDATE") {
               if (payload.text) {
-                matrixData[payload.key] = {
+                currentMatrix[payload.key] = {
                   text: payload.text,
                   author: payload.author,
                   time: payload.time,
                   updatedAt: payload.updatedAt
                 };
               } else {
-                delete matrixData[payload.key];
+                delete currentMatrix[payload.key];
               }
+              saveLocalMasterStorage();
               updateMatrixUI(payload.key);
+            } else if (payload.type === "RESET_CLASS") {
+              masterStorage[currentClassId] = {};
+              saveLocalMasterStorage();
+              updateMatrixUI();
             } else if (payload.type === "REQUEST_STATE") {
-              // 새로 들어온 학생에게 내 데이터 송신
-              if (Object.keys(matrixData).length > 0) {
+              if (Object.keys(currentMatrix).length > 0) {
                 mqttClient.publish(currentTopic, JSON.stringify({
                   type: "FULL_STATE",
-                  data: matrixData
+                  classId: currentClassId,
+                  data: currentMatrix
                 }));
               }
             } else if (payload.type === "FULL_STATE") {
-              // 전체 상태 수신
-              matrixData = { ...matrixData, ...payload.data };
+              masterStorage[currentClassId] = { ...currentMatrix, ...payload.data };
+              saveLocalMasterStorage();
               updateMatrixUI();
             }
           } catch (e) {
@@ -389,7 +467,7 @@
         });
 
         mqttClient.on("offline", () => {
-          document.getElementById("syncStatusText").innerText = "🟡 오프라인 모드";
+          document.getElementById("syncStatusText").innerText = "🟡 오프라인 모드 (내 기기에 저장됨)";
           document.getElementById("syncDot").className = "w-2 h-2 rounded-full bg-amber-500";
         });
       } catch (e) {
@@ -404,14 +482,17 @@
       currentTopic = `korea_science_earth_2026/class_${classId}`;
       mqttClient.subscribe(currentTopic);
 
-      // 반 변경 시 데이터 동기화 요청
-      mqttClient.publish(currentTopic, JSON.stringify({ type: "REQUEST_STATE" }));
+      mqttClient.publish(currentTopic, JSON.stringify({ 
+        type: "REQUEST_STATE",
+        classId: classId 
+      }));
     }
 
     function broadcastCellUpdate(key, cellObj) {
       if (!mqttClient || !mqttClient.connected || !currentTopic) return;
       mqttClient.publish(currentTopic, JSON.stringify({
         type: "CELL_UPDATE",
+        classId: currentClassId,
         key: key,
         text: cellObj ? cellObj.text : "",
         author: cellObj ? cellObj.author : "",
@@ -420,7 +501,15 @@
       }));
     }
 
-    // 4. 표 UI 렌더링
+    function broadcastClassReset() {
+      if (!mqttClient || !mqttClient.connected || !currentTopic) return;
+      mqttClient.publish(currentTopic, JSON.stringify({
+        type: "RESET_CLASS",
+        classId: currentClassId
+      }));
+    }
+
+    // 4. 표 UI 렌더링 (가로/세로 헤더 완전 동일 디자인)
     function renderMatrixGrid() {
       const tbody = document.getElementById("matrixTableBody");
       tbody.innerHTML = "";
@@ -428,7 +517,7 @@
       for (let r = 0; r < 5; r++) {
         const tr = document.createElement("tr");
 
-        // 행 헤더 (세로 권역 - 가로 헤더와 완전히 똑같은 디자인)
+        // 행 헤더 (세로 권역)
         const rowHeader = document.createElement("th");
         rowHeader.className = `p-3.5 font-black text-center text-lg sm:text-xl border-2 tracking-wide shadow-sm ${SPHERES_HEADER_STYLE[SPHERES[r]]}`;
         rowHeader.innerText = SPHERES[r];
@@ -461,7 +550,8 @@
     }
 
     function getCellHTML(key) {
-      const item = matrixData[key];
+      const currentMatrix = getCurrentMatrix();
+      const item = currentMatrix[key];
       if (item && item.text && item.text.trim().length > 0) {
         return `
           <div class="h-full flex flex-col justify-between p-2.5 rounded-xl bg-emerald-50/90 border-2 border-emerald-400 text-slate-900 shadow-sm">
@@ -501,12 +591,13 @@
     }
 
     function updateProgress() {
+      const currentMatrix = getCurrentMatrix();
       let count = 0;
       for (let r = 0; r < 5; r++) {
         for (let c = 0; c < 5; c++) {
           if (r === c) continue;
           const key = `${r}_${c}`;
-          if (matrixData[key] && matrixData[key].text && matrixData[key].text.trim().length > 0) {
+          if (currentMatrix[key] && currentMatrix[key].text && currentMatrix[key].text.trim().length > 0) {
             count++;
           }
         }
@@ -521,7 +612,8 @@
       activeCellKey = `${r}_${c}`;
       document.getElementById("modalTargetTitle").innerText = `${SPHERES[r]} ➔ ${SPHERES[c]}`;
       
-      const existing = matrixData[activeCellKey] || { text: "", author: "", time: 0 };
+      const currentMatrix = getCurrentMatrix();
+      const existing = currentMatrix[activeCellKey] || { text: "", author: "", time: 0 };
       document.getElementById("modalTextInput").value = existing.text || "";
       document.getElementById("modalAuthorInput").value = existing.author || "";
 
@@ -555,9 +647,11 @@
       const author = document.getElementById("modalAuthorInput").value.trim() || "학생";
       const elapsed = parseInt(document.getElementById("modalLiveTimer").innerText) || 0;
 
+      const currentMatrix = getCurrentMatrix();
       let cellObj = null;
+
       if (text.length === 0) {
-        delete matrixData[activeCellKey];
+        delete currentMatrix[activeCellKey];
       } else {
         cellObj = {
           text: text,
@@ -565,9 +659,10 @@
           time: elapsed,
           updatedAt: Date.now()
         };
-        matrixData[activeCellKey] = cellObj;
+        currentMatrix[activeCellKey] = cellObj;
       }
 
+      saveLocalMasterStorage();
       const updated = activeCellKey;
       closeQuestModal();
       updateMatrixUI(updated);
@@ -576,14 +671,75 @@
 
     function deleteCellData() {
       if (!activeCellKey) return;
-      delete matrixData[activeCellKey];
+      const currentMatrix = getCurrentMatrix();
+      delete currentMatrix[activeCellKey];
+      saveLocalMasterStorage();
+
       const updated = activeCellKey;
       closeQuestModal();
       updateMatrixUI(updated);
       broadcastCellUpdate(updated, null);
     }
 
-    // 6. 학급 리스트 및 관리
+    // 6. 데이터 백업/엑셀 다운로드 기능
+    function exportCurrentClassCSV() {
+      const currentClass = classes.find(c => c.id === currentClassId);
+      const className = currentClass ? currentClass.name : "학급";
+      const currentMatrix = getCurrentMatrix();
+
+      let csvContent = "\uFEFF원인 권역,영향 권역,상호작용 내용,작성자,소요시간(초)\n";
+
+      for (let r = 0; r < 5; r++) {
+        for (let c = 0; c < 5; c++) {
+          if (r === c) continue;
+          const key = `${r}_${c}`;
+          const item = currentMatrix[key];
+          
+          const origin = SPHERES[r];
+          const target = SPHERES[c];
+          
+          if (item && item.text && item.text.trim().length > 0) {
+            const cleanText = `"${item.text.replace(/"/g, '""')}"`;
+            const cleanAuthor = `"${(item.author || "학생").replace(/"/g, '""')}"`;
+            csvContent += `${origin},${target},${cleanText},${cleanAuthor},${item.time || 0}\n`;
+          } else {
+            csvContent += `${origin},${target},"미작성","-",0\n`;
+          }
+        }
+      }
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${className}_지구계_상호작용_탐험기록.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // 7. 현재 학급 전용 안전 초기화 처리
+    function openResetModal() {
+      const currentClass = classes.find(c => c.id === currentClassId);
+      const name = currentClass ? currentClass.name : "현재 반";
+      document.getElementById("resetModalMessage").innerText = `'${name}'의 모든 작성 데이터를 초기화하시겠습니까?\n\n삭제된 데이터는 복구할 수 없으며, 연결된 학생들의 화면도 즉시 깨끗해집니다.`;
+      document.getElementById("resetModal").classList.remove("hidden");
+    }
+
+    function closeResetModal() {
+      document.getElementById("resetModal").classList.add("hidden");
+    }
+
+    function handleResetCurrentClass() {
+      masterStorage[currentClassId] = {};
+      saveLocalMasterStorage();
+      updateMatrixUI();
+      broadcastClassReset();
+      closeResetModal();
+    }
+
+    // 8. 학급 리스트 및 관리
     function renderClassSelect() {
       const select = document.getElementById("classSelect");
       select.innerHTML = "";
@@ -652,9 +808,15 @@
 
     window.confirmDeleteClass = (id) => {
       classes = classes.filter(c => c.id !== id);
-      if (currentClassId === id) currentClassId = classes[0].id;
+      delete masterStorage[id];
+      saveLocalMasterStorage();
+
+      if (currentClassId === id) {
+        currentClassId = classes[0].id;
+      }
       renderClassSelect();
       renderClassManagerList();
+      updateMatrixUI();
       switchClassTopic(currentClassId);
     };
 
@@ -665,6 +827,7 @@
       const list = document.getElementById("reportContentList");
       list.innerHTML = "";
 
+      const currentMatrix = getCurrentMatrix();
       let filledCount = 0;
       let totalSeconds = 0;
 
@@ -672,7 +835,7 @@
         for (let c = 0; c < 5; c++) {
           if (r === c) continue;
           const key = `${r}_${c}`;
-          const item = matrixData[key];
+          const item = currentMatrix[key];
           
           const card = document.createElement("div");
           card.className = "p-3.5 rounded-xl border-2 print-shadow-none flex flex-col sm:flex-row sm:items-center justify-between gap-3 ";
@@ -714,7 +877,7 @@
       document.getElementById("reportModal").classList.remove("hidden");
     }
 
-    // 7. 메인 스톱워치
+    // 9. 메인 스톱워치
     function startMainTimer() {
       if (mainTimerInterval) clearInterval(mainTimerInterval);
       mainTimerInterval = setInterval(() => {
@@ -727,11 +890,11 @@
       }, 1000);
     }
 
-    // 8. 이벤트 연결 및 실행
+    // 10. 이벤트 연결 및 실행
     function setupEventListeners() {
+      // 학급 변경 -> 해당 반 독립 데이터 완전 렌더링
       document.getElementById("classSelect").addEventListener("change", (e) => {
         currentClassId = e.target.value;
-        matrixData = {}; // 반 변경 시 초기화 후 새로 동기화
         updateMatrixUI();
         switchClassTopic(currentClassId);
       });
@@ -745,6 +908,15 @@
         globalSeconds = 0;
         document.getElementById("mainTimerText").innerText = "00:00";
       });
+
+      // 백업 및 저장
+      document.getElementById("btnExportData").addEventListener("click", exportCurrentClassCSV);
+
+      // 초기화 팝업 이벤트
+      document.getElementById("btnOpenResetModal").addEventListener("click", openResetModal);
+      document.getElementById("btnCloseResetModal").addEventListener("click", closeResetModal);
+      document.getElementById("btnCancelResetModal").addEventListener("click", closeResetModal);
+      document.getElementById("btnResetCurrentClass").addEventListener("click", handleResetCurrentClass);
 
       document.getElementById("btnCloseModal").addEventListener("click", closeQuestModal);
       document.getElementById("btnCancelModal").addEventListener("click", closeQuestModal);
@@ -802,6 +974,7 @@
     }
 
     window.addEventListener("DOMContentLoaded", () => {
+      loadLocalMasterStorage();
       renderClassSelect();
       renderMatrixGrid();
       startMainTimer();
